@@ -68,8 +68,8 @@ def rsgain_path() -> Path:
     exe = base_dir() / "rsgain" / "rsgain.exe"
     if not exe.is_file():
         raise FileNotFoundError(
-            f"rsgain.exe not found at: {exe}\n"
-            "The audio engine is missing from this installation."
+            f"rsgain.exe não encontrado em: {exe}\n"
+            "O motor de áudio está faltando nesta instalação."
         )
     return exe
 
@@ -146,7 +146,7 @@ def _parse_row(stdout: str, path: Path) -> Result:
 
     if data_row is None or len(data_row) < 7:
         return Result(path, None, None, None, None, "", False,
-                      "rsgain returned no scan data for this file")
+                      "O rsgain não retornou dados para este arquivo")
 
     return Result(
         path=path,
@@ -173,7 +173,7 @@ def _execute(args: list[str], path: Path) -> Result:
         return Result(path, None, None, None, None, "", False, str(exc))
 
     if code != 0:
-        message = err.strip() or out.strip() or f"rsgain exited with code {code}"
+        message = err.strip() or out.strip() or f"O rsgain terminou com código {code}"
         # Limpa as cores ANSI e achata em uma linha: a tabela so' tem uma celula.
         message = ANSI_ESCAPE.sub("", message)
         return Result(path, None, None, None, None, "", False,
@@ -239,7 +239,7 @@ def run_batch(paths: list[Path], target: int, q: "Queue", mode: str = "normalize
     ok = 0
     failed = 0
     action = remove_tags if mode == "undo" else normalize_file
-    verb = "Removing tags from" if mode == "undo" else "Scanning"
+    verb = "Removendo etiquetas de" if mode == "undo" else "Analisando"
 
     for index, path in enumerate(paths, start=1):
         q.put(("progress", index, total))
@@ -254,10 +254,10 @@ def run_batch(paths: list[Path], target: int, q: "Queue", mode: str = "normalize
         else:
             ok += 1
             if mode == "undo":
-                q.put(("log", "    tags removed"))
+                q.put(("log", "    etiquetas removidas"))
             else:
                 gain = "n/a" if result.gain is None else f"{result.gain:+.2f} dB"
-                q.put(("log", f"    gain {gain}"))
+                q.put(("log", f"    ajuste {gain}"))
 
         q.put(("result", result))
 
@@ -270,6 +270,6 @@ if __name__ == "__main__":
     folder = Path(sys.argv[1]) if len(sys.argv) > 1 else Path.cwd()
     found = find_songs(folder)
     print(f"rsgain: {rsgain_path()}")
-    print(f"{len(found)} song(s) found in {folder}")
+    print(f"{len(found)} musica(s) encontrada(s) em {folder}")
     for song in found:
         print(f"  {song}")

@@ -80,10 +80,16 @@ Every `subprocess.run` goes through `engine._run`, which is the single place tha
 
 ## Conventions
 
-**Language rule, non-negotiable, every file:** UI strings, identifiers and filenames in **English**;
-**every comment and docstring in pt-BR**. Comments explain the *why*, not the *what* — roughly one
-per logical block, plus a docstring on every function. The repo owner is learning Python and these
-comments are the teaching surface, so assume no prior knowledge of threads, subprocess or tkinter.
+**Language rule, non-negotiable, every file:** identifiers and filenames in **English**;
+**every user-visible string, comment and docstring in pt-BR** — that includes the `engine.py`
+messages that surface in the table or the log. Comments explain the *why*, not the *what* — roughly
+one per logical block, plus a docstring on every function. The repo owner is learning Python and
+these comments are the teaching surface, so assume no prior knowledge of threads, subprocess or
+tkinter.
+
+**The table explains itself.** Every result row carries a plain-pt-BR sentence built by
+`app.explain()`, and the `?` button opens `app.HELP_SECTIONS`. A new column or a new failure mode
+means a new branch in `explain()` — a number the user cannot interpret is a bug, not a detail.
 
 **Dependencies stay at three** (`customtkinter`, `tkinterdnd2`, `pyinstaller`). Pillow was rejected
 on purpose — `tools/make_icon.py` writes the `.ico` with stdlib `zlib` + `struct`. Adding a
