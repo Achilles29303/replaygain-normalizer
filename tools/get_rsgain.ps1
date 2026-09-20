@@ -1,0 +1,31 @@
+# Baixa o rsgain 3.8 (win64) e o instala em .\rsgain.
+#
+# Por que este script existe: o rsgain.exe e suas DLLs nao sao redistribuidos neste
+# repositorio publico (sao ~5 MB de binario de terceiros, sob licenca propria).
+# Quem clonar o projeto roda este script uma vez e fica com o motor no lugar certo.
+#
+# Uso:  pwsh -NoProfile -File tools\get_rsgain.ps1
+
+$ErrorActionPreference = "Stop"
+
+$version = "3.8"
+$url  = "https://github.com/complexlogic/rsgain/releases/download/v$version/rsgain-$version-win64.zip"
+$root = Split-Path -Parent $PSScriptRoot
+$dest = Join-Path $root "rsgain"
+$tmp  = Join-Path ([IO.Path]::GetTempPath()) "rsgain-$version.zip"
+$ext  = Join-Path ([IO.Path]::GetTempPath()) "rsgain-$version-extract"
+
+Write-Host "Downloading rsgain $version..." -ForegroundColor Cyan
+Invoke-WebRequest -Uri $url -OutFile $tmp
+
+Write-Host "Extracting..." -ForegroundColor Cyan
+if (Test-Path $ext) { Remove-Item -Recurse -Force $ext }
+Expand-Archive -Path $tmp -DestinationPath $ext -Force
+
+New-Item -ItemType Directory -Force -Path $dest | Out-Null
+Copy-Item -Path (Join-Path $ext "rsgain-$version-win64\*") -Destination $dest -Recurse -Force
+
+Write-Host "Verifying..." -ForegroundColor Cyan
+& (Join-Path $dest "rsgain.exe") --version
+
+Write-Host "`nrsgain installed at: $dest" -ForegroundColor Green
