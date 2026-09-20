@@ -1,0 +1,84 @@
+# ==========================================================================
+#  PRIVACY FIRST
+#  This repository is public. Nothing personal may ever reach it.
+# ==========================================================================
+
+# --- Audio / media: never commit the user's music library ---------------
+*.mp3
+*.flac
+*.wav
+*.wave
+*.m4a
+*.aac
+*.ogg
+*.opus
+*.wma
+*.aiff
+*.aif
+*.ape
+*.wv
+*.mp2
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.webm
+*.m3u
+*.m3u8
+*.cue
+
+# --- Cover art and any stray images -------------------------------------
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.webp
+*.tiff
+!docs/screenshot*.png
+
+# --- Bundled third-party binary (GPL, 5 MB) ------------------------------
+# rsgain is downloaded by tools/get_rsgain.ps1 instead of being redistributed.
+rsgain/
+
+# --- Local config, credentials, anything with a real path in it ----------
+config.json
+*.env
+.env*
+secrets*
+*.key
+*.pem
+*.log
+
+# --- Build output --------------------------------------------------------
+build/
+dist/
+*.spec
+*.exe
+*.dll
+
+# --- Python --------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Editors / OS --------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini
+Desktop.ini
+$RECYCLE.BIN/
+ehthumbs.db
+
+# --- Scratch -------------------------------------------------------------
+scratch/
+tmp/
+temp/
