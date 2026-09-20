@@ -44,7 +44,7 @@ container. That is metadata, not audio.
 
 ```bash
 pip install -r requirements.txt
-pwsh -NoProfile -File tools/get_rsgain.ps1   # downloads the audio engine into rsgain/
+python tools/get_rsgain.py   # downloads the audio engine into rsgain/
 python app.py
 ```
 
@@ -106,7 +106,7 @@ look for "ReplayGain" in their playback settings and set it to **track** mode.
 ```
 app.py                 CustomTkinter UI, queue polling, preferences
 engine.py              file discovery, rsgain subprocess calls, output parsing
-tools/get_rsgain.ps1   downloads the audio engine
+tools/get_rsgain.py    downloads the audio engine
 tools/make_icon.py     generates assets/icon.ico from scratch (no Pillow)
 build.bat              PyInstaller one-liner
 ```

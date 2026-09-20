@@ -38,7 +38,7 @@
 !docs/screenshot*.png
 
 # --- Bundled third-party binary (GPL, 5 MB) ------------------------------
-# rsgain is downloaded by tools/get_rsgain.ps1 instead of being redistributed.
+# rsgain is downloaded by tools/get_rsgain.py instead of being redistributed.
 rsgain/
 
 # --- Local config, credentials, anything with a real path in it ----------
