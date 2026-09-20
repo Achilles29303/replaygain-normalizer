@@ -95,9 +95,13 @@ means a new branch in `explain()` — a number the user cannot interpret is a bu
 on purpose — `tools/make_icon.py` writes the `.ico` with stdlib `zlib` + `struct`. Adding a
 dependency needs a reason bigger than convenience.
 
-**Colors are constants at the top of `app.py`.** `ttk.Treeview` is a native widget that ignores
-CustomTkinter: it needs `style.theme_use("clam")` plus every color set by hand, or the table renders
-white inside the dark window.
+**Two CustomTkinter traps, both already paid for:**
+- **Colors** are constants at the top of `app.py`. `ttk.Treeview` is a native widget that ignores
+  CustomTkinter: it needs `style.theme_use("clam")` plus every color set by hand, or the table
+  renders white inside the dark window.
+- **`geometry()` speaks in real screen pixels, but every CTk widget is already multiplied by the
+  text-size scale.** Any new window must size itself `int(w * SCALE_STEPS[master.scale_name])`, or
+  its content is born larger than the frame and the text is silently cut off on the right.
 
 **Windows-only by design:** DWM titlebar painting (`paint_titlebar`), `CREATE_NO_WINDOW`, and
 `%APPDATA%\ReplayGainNormalizer\config.json` for preferences (not next to the `.exe`, which may sit

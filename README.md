@@ -14,11 +14,16 @@ volume on the fly. Nothing is re-encoded, and every change can be undone.
 
 ## What it does
 
+**The interface is in Brazilian Portuguese.** This README stays in English; the app
+itself speaks pt-BR, because it was built for a pt-BR user.
+
 | | |
 |---|---|
-| **Point at a folder** | Drag it anywhere onto the window, or click *Browse*. Subfolders are included. |
+| **Point at a folder** | Drag it anywhere onto the window, or click *Procurar*. Subfolders are included. |
 | **Pick a target** | `-18 LUFS` (ReplayGain standard), `-16`, or `-14` (streaming level). |
-| **Normalize** | One file at a time, with live progress, a results table and an activity log. |
+| **Normalizar** | One file at a time, with live progress, a results table and an activity log. |
+| **Understand the result** | Every row ends with a plain-language sentence — *"Está alta — será abaixada 9.8 dB"* — so the raw LUFS and dB numbers never stand alone. |
+| **Help** | The `?` button in the top-right explains every column: why LUFS is always negative, what the gain in dB does, what Peak and the clipping warning mean. |
 | **Undo** | Select any rows in the table and remove their tags again. |
 
 Formats: `.mp3` and `.flac`.
