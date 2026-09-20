@@ -49,6 +49,16 @@ TARGETS: dict[str, int] = {
     "-14 LUFS  ·  streaming level": -14,
 }
 
+# Passos de tamanho de texto. O rotulo e' o que aparece no botao do canto; o numero e'
+# o fator entregue ao CustomTkinter, que redimensiona fontes E widgets de uma vez so'.
+SCALE_STEPS: dict[str, float] = {"S": 1.0, "M": 1.25, "L": 1.5, "XL": 1.75}
+DEFAULT_SCALE = "M"   # 25% maior que o desenho original ja' na primeira abertura
+
+# Tamanho da janela em 100%. Cada passo de fonte multiplica estes numeros: texto maior
+# dentro de uma janela do mesmo tamanho so' produziria conteudo cortado.
+BASE_SIZE = (1000, 720)
+MIN_SIZE = (860, 620)
+
 # Preferencias no %APPDATA% e nao ao lado do .exe: um executavel portatil pode acabar
 # numa pasta somente-leitura (Arquivos de Programas, pendrive), e ai' salvar falharia.
 CONFIG_DIR = Path(os.environ.get("APPDATA", Path.home())) / "ReplayGainNormalizer"
@@ -224,6 +234,12 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         self.TkdndVersion = TkinterDnD._require(self)
 
         self.config_data = load_config()
+        # A escala precisa valer ANTES do primeiro widget nascer: o CustomTkinter
+        # aplica o fator no momento em que cada widget se desenha pela primeira vez.
+        self.scale_name = self.config_data.get("ui_scale", DEFAULT_SCALE)
+        if self.scale_name not in SCALE_STEPS:
+            self.scale_name = DEFAULT_SCALE
+        ctk.set_widget_scaling(SCALE_STEPS[self.scale_name])
         # A fila e' a UNICA ponte entre a thread de processamento e a interface.
         self.queue: queue.Queue = queue.Queue()
         self.songs: list[Path] = []
@@ -251,8 +267,8 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         ctk.set_appearance_mode("dark")
         self.title(APP_NAME)
         self.configure(fg_color=BG)
-        self.geometry("1000x720")
-        self.minsize(860, 620)
+        scale = SCALE_STEPS[self.scale_name]
+        self.minsize(int(MIN_SIZE[0] * scale), int(MIN_SIZE[1] * scale))
         self._center()
         apply_icon(self)
         paint_titlebar(self)
@@ -269,7 +285,8 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
     def _center(self) -> None:
         """Abre a janela no centro do monitor em vez do canto superior esquerdo."""
         self.update_idletasks()
-        w, h = 1000, 720
+        scale = SCALE_STEPS[self.scale_name]
+        w, h = int(BASE_SIZE[0] * scale), int(BASE_SIZE[1] * scale)
         x = (self.winfo_screenwidth() - w) // 2
         y = (self.winfo_screenheight() - h) // 2 - 20
         self.geometry(f"{w}x{h}+{x}+{max(y, 0)}")
@@ -310,7 +327,26 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         ctk.CTkLabel(header, text="  rsgain 3.8  ", height=26, corner_radius=13,
                      fg_color=SURFACE_2, text_color=MUTED,
                      font=ctk.CTkFont("Segoe UI", 11)
-                     ).grid(row=0, column=2, rowspan=2, sticky="e")
+                     ).grid(row=0, column=2, rowspan=2, sticky="e", padx=(0, 14))
+
+        # Controle de tamanho do texto no canto superior direito. Ocupa as duas linhas
+        # do cabecalho (rotulo em cima, botoes embaixo) para nao esticar a barra.
+        corner = ctk.CTkFrame(header, fg_color="transparent")
+        corner.grid(row=0, column=3, rowspan=2, sticky="e")
+
+        ctk.CTkLabel(corner, text="TEXT SIZE", text_color=MUTED, anchor="e",
+                     font=ctk.CTkFont("Segoe UI", 10, "bold")
+                     ).grid(row=0, column=0, sticky="e", pady=(0, 4))
+
+        self.scale_selector = ctk.CTkSegmentedButton(
+            corner, values=list(SCALE_STEPS), height=30, corner_radius=8,
+            fg_color=SURFACE_2, selected_color=ACCENT,
+            selected_hover_color=ACCENT_HOVER, unselected_color=SURFACE_2,
+            unselected_hover_color=BORDER, text_color=TEXT,
+            font=ctk.CTkFont("Segoe UI", 11, "bold"),
+            command=self._on_scale_change)
+        self.scale_selector.grid(row=1, column=0, sticky="e")
+        self.scale_selector.set(self.scale_name)
 
     def _build_source_card(self) -> None:
         """Cartao da pasta de origem: caminho, botao de selecao e dica de arrastar."""
@@ -382,9 +418,11 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         self.normalize_button = ctk.CTkButton(
             right, text="Normalize", width=164, height=42, corner_radius=9,
             fg_color=ACCENT, hover_color=ACCENT_HOVER, text_color="#0F1115",
+            text_color_disabled=MUTED, border_color=BORDER,
             font=ctk.CTkFont("Segoe UI", 13, "bold"),
-            state="disabled", command=self._normalize)
+            command=self._normalize)
         self.normalize_button.grid(row=0, column=1, pady=(20, 0))
+        self._set_normalize_enabled(False)
 
     def _build_progress(self) -> None:
         """Barra de progresso e o contador 'file N of M'."""
@@ -411,18 +449,18 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         card.grid_columnconfigure(0, weight=1)
         card.grid_rowconfigure(0, weight=1)
 
-        style = ttk.Style()
+        # Guardado em `self` porque o controle de tamanho de texto precisa reescrever
+        # estas fontes depois: o Treeview e' widget nativo e ignora o CustomTkinter.
+        style = self.tree_style = ttk.Style()
         # O tema nativo do Windows IGNORA cores de fundo. O "clam" as respeita —
         # sem esta linha a tabela sai branca no meio de uma janela escura.
         style.theme_use("clam")
         style.configure("RG.Treeview",
                         background=SURFACE, fieldbackground=SURFACE,
-                        foreground=TEXT, borderwidth=0, relief="flat",
-                        rowheight=30, font=("Segoe UI", 10))
+                        foreground=TEXT, borderwidth=0, relief="flat")
         style.configure("RG.Treeview.Heading",
                         background=SURFACE_2, foreground=MUTED,
-                        borderwidth=0, relief="flat",
-                        font=("Segoe UI", 9, "bold"), padding=(10, 9))
+                        borderwidth=0, relief="flat")
         # `map` limpa o realce azul padrao do cabecalho ao passar o mouse e define
         # a cor da linha selecionada — sem isso o clique pinta com o azul do sistema.
         style.map("RG.Treeview.Heading",
@@ -448,23 +486,25 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
                         borderwidth=0, relief="flat", arrowsize=0, width=9)
         style.map("RG.Vertical.TScrollbar", background=[("active", MUTED)])
 
-        columns = ("file", "loudness", "gain", "peak", "clip")
-        self.tree = ttk.Treeview(card, columns=columns, show="headings",
-                                 style="RG.Treeview", selectmode="extended")
-
-        headings = {
+        # Larguras em 100%; o controle de tamanho de texto as multiplica junto com as
+        # fontes, senao um cabecalho maior nao caberia mais na propria coluna.
+        self.tree_columns = {
             "file": ("File", 400, "w"),
             "loudness": ("Loudness (LUFS)", 130, "e"),
             "gain": ("Gain (dB)", 130, "e"),
             "peak": ("Peak", 110, "e"),
             "clip": ("Clipping", 90, "center"),
         }
-        for key, (text, width, anchor) in headings.items():
+        self.tree = ttk.Treeview(card, columns=tuple(self.tree_columns),
+                                 show="headings", style="RG.Treeview",
+                                 selectmode="extended")
+
+        for key, (text, _width, anchor) in self.tree_columns.items():
             self.tree.heading(key, text=text)
             # `stretch` so' na coluna do nome: as numericas tem largura previsivel e
             # esticar todas deixaria numeros perdidos no meio de celulas gigantes.
-            self.tree.column(key, width=width, anchor=anchor,
-                             stretch=(key == "file"), minwidth=70)
+            self.tree.column(key, anchor=anchor, stretch=(key == "file"))
+        self._apply_table_scaling(SCALE_STEPS[self.scale_name])
 
         # Faixas alternadas ajudam o olho a seguir a linha ate' a ultima coluna.
         self.tree.tag_configure("odd", background=SURFACE)
@@ -532,6 +572,40 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         """
         self.config_data["target_lufs"] = self._current_target()
         save_config(self.config_data)
+
+    def _on_scale_change(self, name: str) -> None:
+        """Aplica um novo tamanho de texto a' interface inteira e o guarda.
+
+        Um unico interruptor do CustomTkinter reescala fontes e widgets de todos os
+        controles dele, ao vivo — nada precisa ser reconstruido.
+        """
+        scale = SCALE_STEPS[name]
+        self.scale_name = name
+        ctk.set_widget_scaling(scale)
+        self._apply_table_scaling(scale)
+        # Texto maior sem janela maior esconde o conteudo atras da borda; por isso a
+        # janela volta ao tamanho padrao correspondente a' escala escolhida.
+        self.minsize(int(MIN_SIZE[0] * scale), int(MIN_SIZE[1] * scale))
+        self.geometry(f"{int(BASE_SIZE[0] * scale)}x{int(BASE_SIZE[1] * scale)}")
+
+        self.config_data["ui_scale"] = name
+        save_config(self.config_data)
+
+    def _apply_table_scaling(self, scale: float) -> None:
+        """Reescala a tabela na mao, que e' o unico pedaco alheio ao CustomTkinter.
+
+        Mudar o estilo ttk vale para o widget ja' criado: nao ha' nada a recriar,
+        so' a altura da linha, as fontes e as larguras a recalcular.
+        """
+        self.tree_style.configure("RG.Treeview",
+                                  rowheight=int(30 * scale),
+                                  font=("Segoe UI", int(10 * scale)))
+        self.tree_style.configure("RG.Treeview.Heading",
+                                  font=("Segoe UI", int(9 * scale), "bold"),
+                                  padding=(int(10 * scale), int(9 * scale)))
+        for key, (_text, width, _anchor) in self.tree_columns.items():
+            self.tree.column(key, width=int(width * scale),
+                             minwidth=int(70 * scale))
 
     def _first_run_warning(self) -> None:
         """Avisa, uma unica vez, que o app grava nos arquivos do usuario."""
@@ -793,15 +867,28 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         gravando tags no mesmo arquivo ao mesmo tempo — receita para corrupcao.
         """
         if busy:
-            self.normalize_button.configure(state="disabled", text="Working\u2026")
+            self.normalize_button.configure(text="Working\u2026")
+            self._set_normalize_enabled(False)
             self.undo_button.configure(state="disabled")
             self.target_menu.configure(state="disabled")
         else:
-            self.normalize_button.configure(
-                text="Normalize",
-                state="normal" if self.songs else "disabled")
+            self.normalize_button.configure(text="Normalize")
+            self._set_normalize_enabled(bool(self.songs))
             self.target_menu.configure(state="normal")
             self._on_select()
+
+    def _set_normalize_enabled(self, enabled: bool) -> None:
+        """Pinta o Normalize de acordo com o fato de ele estar ou nao clicavel.
+
+        O CustomTkinter nao escurece o fundo de um botao desabilitado: ele continuaria
+        com o mesmo azul vivo de quando esta' pronto, mentindo sobre o proprio estado.
+        Desligado ele fica preto como o fundo, e so' a borda fina o mantem visivel.
+        """
+        self.normalize_button.configure(
+            state="normal" if enabled else "disabled",
+            fg_color=ACCENT if enabled else BG,
+            hover_color=ACCENT_HOVER if enabled else BG,
+            border_width=0 if enabled else 1)
 
 
 if __name__ == "__main__":
