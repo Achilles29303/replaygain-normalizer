@@ -553,7 +553,8 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
 
         self.progress = ctk.CTkProgressBar(
             wrap, height=6, corner_radius=3,
-            fg_color=SURFACE_2, progress_color=ACCENT)        self.progress.grid(row=0, column=0, sticky="ew")
+            fg_color=SURFACE_2, progress_color=ACCENT)
+        self.progress.grid(row=0, column=0, sticky="ew")
         self.progress.set(0)
         self.progress_label = ctk.CTkLabel(
             wrap, text="Bereit", text_color=MUTED, width=190, anchor="e",
