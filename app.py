@@ -53,64 +53,22 @@ TARGETS: dict[str, int] = {
 # codigo de layout, porque e' texto que o dono do app vai querer reescrever sozinho —
 # e mexer em texto nao deveria exigir entender widget nenhum.
 HELP_SECTIONS: tuple[tuple[str, str], ...] = (
-    (
-        "O que este app faz",
-        "Ele mede o volume real de cada música e anota esse número dentro do arquivo, "
-        "numa etiqueta chamada ReplayGain. O som em si não é alterado: quem lê a "
-        "etiqueta é o seu player (VLC, foobar2000, Rockbox...), que então toca todas "
-        "as faixas no mesmo volume. Nada é perdido e tudo pode ser desfeito.",
-    ),
-    (
-        "Volume medido (LUFS)  ·  por que é sempre negativo",
-        "LUFS é a régua de volume que imita o modo como o ouvido humano escuta. "
-        "O zero é o teto do áudio digital, e tudo o que existe fica abaixo dele — "
-        "por isso os números são negativos, e isso é normal.\n\n"
-        "Quanto mais perto de zero, mais alta é a música. -8 LUFS é um rock moderno "
-        "esmagado no volume máximo; -18 LUFS é um jazz tranquilo. Negativo não "
-        "significa problema.",
-    ),
-    (
-        "Anpassung (dB)  ·  o conserto que será aplicado",
-        "É a diferença entre o volume medido e o alvo escolhido lá em cima.\n\n"
-        "Negativo: a música está mais alta que o alvo e será tocada mais baixo.\n"
-        "Positivo (verde): ela está baixa demais e será tocada mais alto.\n\n"
-        "Como referência: 3 dB é uma diferença claramente audível e 10 dB soa como "
-        "o dobro do volume.",
-    ),
-    (
-        "Peak  ·  o ponto mais alto da onda",
-        "É o instante mais forte da música, numa escala em que 1,000 é exatamente o "
-        "limite do digital. Acima de 1,000 a onda não cabe mais e pode distorcer se "
-        "alguém a amplificar. Não é medido em dB, e sim nessa escala de 0 a 1 e pouco.",
-    ),
-    (
-        "Clipping  ·  o aviso amarelo",
-        "Aparece quando levantar o volume faria o pico estourar o limite. O app já "
-        "reduz o ganho o suficiente para que isso não aconteça — a proteção contra "
-        "distorção fica sempre ligada.\n\n"
-        "Ver esse aviso não é erro: é o app avisando que segurou a mão de propósito.",
-    ),
-    (
-        "Volume alvo  ·  qual escolher",
-        "-18 LUFS é o padrão ReplayGain e a escolha mais segura para uma coleção "
-        "pessoal: quase nunca exige segurar o pico.\n"
-        "-14 LUFS é o nível usado por Spotify e YouTube.\n"
-        "-16 LUFS fica no meio do caminho.\n\n"
-        "Quanto mais perto de zero, mais alto o resultado — e maior a chance de o app "
-        "precisar conter o pico para não distorcer.",
-    ),
-    (
-        "Travessão (—)  ·  não se aplica",
-        "Significa que não existe número para mostrar: ou o arquivo é silêncio "
-        "digital, ou ele falhou e a coluna de ajuste traz o motivo em vermelho.",
-    ),
-    (
-        "Desfazer",
-        "Selecione as linhas na tabela (Ctrl ou Shift para várias) e clique em "
-        "Ausgewählte Tags entfernen. As etiquetas são apagadas e os arquivos voltam ao "
-        "estado anterior. O áudio nunca foi tocado, então não há nada a recuperar "
-        "além dos próprios números.",
-    ),
+    ("Was dieses Programm macht",
+     "Es misst die wahrgenommene Lautstärke jedes Musikstücks und schreibt den Messwert als ReplayGain-Tag in die Datei. Die Audiodaten selbst werden nicht verändert: Dein Player (VLC, foobar2000, Rockbox usw.) liest das Tag und gibt alle Titel mit angeglichener Lautstärke wieder. Es geht nichts verloren und alles lässt sich rückgängig machen."),
+    ("Gemessene Lautstärke (LUFS) · warum immer negativ?",
+     "LUFS ist eine Lautstärkeskala, die das menschliche Hörvermögen berücksichtigt. Null ist die Obergrenze digitaler Audiosignale; alle Werte liegen darunter – deshalb sind die Zahlen negativ. Das ist völlig normal.\n\nJe näher der Wert an null liegt, desto lauter ist die Musik. -8 LUFS entspricht modernem, stark komprimiertem Rock; -18 LUFS eher ruhigem Jazz. Ein negativer Wert ist kein Problem."),
+    ("Anpassung (dB) · die erforderliche Korrektur",
+     "Das ist die Differenz zwischen der gemessenen Lautstärke und dem oben gewählten Zielwert.\n\nNegativ: Der Titel ist lauter als das Ziel und wird leiser wiedergegeben.\nPositiv (grün): Der Titel ist zu leise und wird lauter wiedergegeben.\n\nAls Orientierung: 3 dB sind deutlich hörbar; 10 dB werden ungefähr als doppelte Lautstärke wahrgenommen."),
+    ("Peak · der höchste Punkt des Audiosignals",
+     "Das ist der lauteste Moment eines Stücks. In dieser Skala entspricht 1,000 genau der digitalen Obergrenze. Oberhalb von 1,000 kann das Signal übersteuern, wenn es verstärkt wird. Gemessen wird nicht in dB, sondern auf einer Skala von 0 bis etwas über 1."),
+    ("Clipping · der gelbe Hinweis",
+     "Er erscheint, wenn eine Lautstärkeerhöhung den Peak über die Grenze treiben würde. Das Programm reduziert die Verstärkung automatisch so weit, dass das nicht passiert. Der Schutz vor Clipping ist immer aktiviert.\n\nDieser Hinweis bedeutet keinen Fehler: Das Programm hat die Lautstärke vorsorglich begrenzt."),
+    ("Ziel-Lautstärke · welche soll ich wählen?",
+     "-18 LUFS ist der ReplayGain-Standard und die sicherste Wahl für eine persönliche Musiksammlung: Der Peak muss dabei fast nie begrenzt werden.\n-14 LUFS wird von Spotify und YouTube verwendet.\n-16 LUFS liegt dazwischen.\n\nJe näher an null, desto lauter das Ergebnis – und desto wahrscheinlicher muss das Programm den Peak begrenzen, um Verzerrungen zu vermeiden."),
+    ("Gedankenstrich (—) · nicht zutreffend",
+     "Es gibt keinen anzuzeigenden Messwert: Entweder enthält die Datei digitale Stille oder die Messung ist fehlgeschlagen. Der Grund steht dann rot in der Spalte „Bedeutung“."),
+    ("Rückgängig",
+     "Wähle die betreffenden Zeilen in der Tabelle aus (Strg oder Umschalt für mehrere) und klicke auf „Ausgewählte Tags entfernen“. Die Tags werden gelöscht und die Dateien kehren zum vorherigen Zustand zurück. Die Audiodaten wurden nie verändert; es muss nur die Metadatenänderung rückgängig gemacht werden."),
 )
 
 # Passos de tamanho de texto. O rotulo e' o que aparece no botao do canto; o numero e'
@@ -298,7 +256,6 @@ class HelpWindow(ctk.CTkToplevel):
 
 
 class Dialog(ctk.CTkToplevel):    """Caixa de dialogo modal com a mesma linguagem visual do resto do app.
-
     O `messagebox` do tkinter usa o tema claro do Windows e destoa por completo de uma
     janela escura. Como sao apenas dois dialogos, desenhar os dois na mao sai mais
     barato do que conviver com o contraste feio.
@@ -598,7 +555,6 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
             wrap, height=6, corner_radius=3,
             fg_color=SURFACE_2, progress_color=ACCENT)        self.progress.grid(row=0, column=0, sticky="ew")
         self.progress.set(0)
-
         self.progress_label = ctk.CTkLabel(
             wrap, text="Bereit", text_color=MUTED, width=190, anchor="e",
             font=ctk.CTkFont("Segoe UI", 11))
@@ -897,8 +853,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
 
         # Guardar quais linhas foram afetadas permite marca-las como limpas depois,        # em vez de reconstruir a tabela inteira e perder o que ja' estava nela.
         self._undo_rows = {self.row_paths[i]: i for i in selection if i in self.row_paths}
-        self._log(f"\u2014 Removendo etiquetas de {len(paths)} arquivo(s) \u2014")
-        self._start(paths, mode="undo")
+        self._log(f"\u2014 Removendo etiquetas de {len(paths)} arquivo(s) \u2014")        self._start(paths, mode="undo")
 
     def _start(self, paths: list[Path], mode: str) -> None:
         """Sobe a thread de trabalho e comeca a ler a fila.
