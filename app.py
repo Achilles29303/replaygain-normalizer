@@ -854,7 +854,8 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
 
         # Guardar quais linhas foram afetadas permite marca-las como limpas depois,        # em vez de reconstruir a tabela inteira e perder o que ja' estava nela.
         self._undo_rows = {self.row_paths[i]: i for i in selection if i in self.row_paths}
-        self._log(f"\u2014 Entferne Tags aus {len(paths)} Datei(en) \u2014")        self._start(paths, mode="undo")
+        self._log(f"\u2014 Entferne Tags aus {len(paths)} Datei(en) \u2014")
+        self._start(paths, mode="undo")
 
     def _start(self, paths: list[Path], mode: str) -> None:
         """Sobe a thread de trabalho e comeca a ler a fila.
