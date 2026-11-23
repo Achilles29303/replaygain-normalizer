@@ -14,8 +14,7 @@ volume on the fly. Nothing is re-encoded, and every change can be undone.
 
 ## What it does
 
-**The interface is in Brazilian Portuguese.** This README stays in English; the app
-itself speaks pt-BR, because it was built for a pt-BR user.
+**The interface is in German.** The app's visible controls, result messages and built-in help are translated for German-speaking users.
 
 | | |
 |---|---|
