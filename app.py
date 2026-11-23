@@ -431,7 +431,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
                      font=ctk.CTkFont("Segoe UI", 21, "bold")
                      ).grid(row=0, column=1, sticky="w")
         ctk.CTkLabel(header,
-                     text="Grava etiquetas ReplayGain 2.0 \u00b7 s\u00f3 metadados, o \u00e1udio n\u00e3o \u00e9 tocado",
+                     text="Schreibt ReplayGain-2.0-Tags · nur Metadaten, Audiodaten bleiben unverändert",
                      text_color=MUTED, anchor="w",
                      font=ctk.CTkFont("Segoe UI", 12)
                      ).grid(row=1, column=1, sticky="w")
@@ -782,14 +782,14 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         if dropped.is_file():
             # Soltar uma musica quase sempre significa "quero esta pasta"; dizer isso
             # no log evita a impressao de que o app ignorou o que foi arrastado.
-            self._log(f"Um arquivo foi solto \u2014 usando a pasta dele: {dropped.parent}")
+            self._log(f"Datei abgelegt – verwende ihren Ordner: {dropped.parent}")
             dropped = dropped.parent
         if not dropped.is_dir():
-            self._log(f"N\u00e3o foi poss\u00edvel usar o item solto: {dropped}")
+            self._log(f"Das abgelegte Element kann nicht verwendet werden: {dropped}")
             return
 
         if len(items) > 1:
-            self._log(f"{len(items)} itens soltos \u2014 usando apenas o primeiro.")
+            self._log(f"{len(items)} Elemente abgelegt – nur das erste wird verwendet.")
         self._set_folder(dropped)
 
     def _set_folder(self, folder: Path, log: bool = True) -> None:
@@ -825,7 +825,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
     # -- execucao -------------------------------------------------------------
 
     def _normalize(self) -> None:
-        """Dispara a medicao e gravacao de tags de todas as musicas encontradas."""
+        """Dispara a medicao e gravacao de tags de todas as musicas gefundens."""
         if self.running or not self.songs:
             return
         self._clear_table()
@@ -1014,7 +1014,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         gravando tags no mesmo arquivo ao mesmo tempo — receita para corrupcao.
         """
         if busy:
-            self.normalize_button.configure(text="Trabalhando\u2026")
+            self.normalize_button.configure(text="In Bearbeitung…")
             self._set_normalize_enabled(False)
             self.undo_button.configure(state="disabled")
             self.target_menu.configure(state="disabled")
