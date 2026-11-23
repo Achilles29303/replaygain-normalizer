@@ -485,7 +485,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         self.path_entry = ctk.CTkEntry(
             row, height=42, corner_radius=9, fg_color=SURFACE_2,
             border_color=BORDER, border_width=1, text_color=TEXT,
-            placeholder_text="Arraste uma pasta para qualquer ponto desta janela, ou procure\u2026",
+            placeholder_text="Ziehe einen Ordner auf dieses Fenster oder klicke auf Durchsuchen\u2026",
             font=ctk.CTkFont("Segoe UI", 12))
         self.path_entry.grid(row=0, column=0, sticky="ew")
         self.path_entry.configure(state="readonly")
@@ -805,9 +805,9 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         count = len(self.songs)
         if count:
             self.count_label.configure(
-                text=f"{count} m\u00fasica{'s' if count != 1 else ''} encontrada"
-                     f"{'s' if count != 1 else ''}  \u00b7  .mp3 e .flac, "
-                     "incluindo subpastas",
+                text=f"{count} Musikdatei{'en' if count != 1 else ''} gefunden"
+                     f"{'en' if count != 1 else ''}  \u00b7  .mp3 und .flac, "
+                     "einschließlich Unterordner",
                 text_color=SUCCESS)
         else:
             self.count_label.configure(
@@ -815,8 +815,8 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
 
         self._set_busy(False)
         if log:
-            self._log(f"Pasta: {folder}")
-            self._log(f"{count} m\u00fasica(s) encontrada(s).")
+            self._log(f"Ordner: {folder}")
+            self._log(f"{count} Musikdatei(en) gefunden.")
 
         self.config_data["last_folder"] = str(folder)
         save_config(self.config_data)
@@ -828,7 +828,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         if self.running or not self.songs:
             return
         self._clear_table()
-        self._log(f"\u2014 Normalizando {len(self.songs)} arquivo(s) para "
+        self._log(f"\u2014 Analysiere {len(self.songs)} Datei(en) mit Zielwert "
                   f"{self._current_target()} LUFS \u2014")
         self._start(self.songs, mode="normalize")
 
@@ -843,17 +843,17 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
 
         dialog = Dialog(
             self, "ReplayGain-Tags entfernen?",
-            f"As etiquetas ReplayGain de {len(paths)} arquivo(s) selecionado(s) "
-            "ser\u00e3o apagadas.\n\n"
-            "O \u00e1udio n\u00e3o \u00e9 afetado, mas os valores medidos se perdem \u2014 "
-            "seria preciso normalizar de novo.",
+            f"Die ReplayGain-Tags von {len(paths)} ausgewählten Datei(en) "
+            "werden gelöscht.\n\n"
+            "Die Audiodaten bleiben unverändert, aber die Messwerte gehen verloren – "
+            "du müsstest die Dateien erneut analysieren.",
             confirm="Tags entfernen", danger=True)
         if not dialog.result:
             return
 
         # Guardar quais linhas foram afetadas permite marca-las como limpas depois,        # em vez de reconstruir a tabela inteira e perder o que ja' estava nela.
         self._undo_rows = {self.row_paths[i]: i for i in selection if i in self.row_paths}
-        self._log(f"\u2014 Removendo etiquetas de {len(paths)} arquivo(s) \u2014")        self._start(paths, mode="undo")
+        self._log(f"\u2014 Entferne Tags aus {len(paths)} Datei(en) \u2014")        self._start(paths, mode="undo")
 
     def _start(self, paths: list[Path], mode: str) -> None:
         """Sobe a thread de trabalho e comeca a ler a fila.
@@ -916,9 +916,9 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         self._set_busy(False)
         self.progress.set(1 if ok or failed else 0)
 
-        summary = f"Conclu\u00eddo \u00b7 {ok} ok"
+        summary = f"Abgeschlossen · {ok} erfolgreich"
         if failed:
-            summary += f", {failed} com erro"
+            summary += f", {failed} fehlgeschlagen"
         self.progress_label.configure(
             text=summary, text_color=DANGER if failed else SUCCESS)
         self._log(f"\u2014 {summary} \u2014\n")
