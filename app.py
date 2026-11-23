@@ -44,9 +44,9 @@ WARN = "#FFB454"
 
 # Opcoes do dropdown. O texto mostrado e' amigavel; o numero real vai para o rsgain.
 TARGETS: dict[str, int] = {
-    "-18 LUFS  ·  padrão ReplayGain": -18,
-    "-16 LUFS  ·  um pouco mais alto": -16,
-    "-14 LUFS  ·  nível de streaming": -14,
+    "-18 LUFS · ReplayGain-Standard": -18,
+    "-16 LUFS · etwas lauter": -16,
+    "-14 LUFS · Streaming-Niveau": -14,
 }
 
 # Conteudo do painel de ajuda, em pares (titulo, texto). Fica aqui em cima, longe do
@@ -70,7 +70,7 @@ HELP_SECTIONS: tuple[tuple[str, str], ...] = (
         "significa problema.",
     ),
     (
-        "Ajuste (dB)  ·  o conserto que será aplicado",
+        "Anpassung (dB)  ·  o conserto que será aplicado",
         "É a diferença entre o volume medido e o alvo escolhido lá em cima.\n\n"
         "Negativo: a música está mais alta que o alvo e será tocada mais baixo.\n"
         "Positivo (verde): ela está baixa demais e será tocada mais alto.\n\n"
@@ -78,13 +78,13 @@ HELP_SECTIONS: tuple[tuple[str, str], ...] = (
         "o dobro do volume.",
     ),
     (
-        "Pico  ·  o ponto mais alto da onda",
+        "Peak  ·  o ponto mais alto da onda",
         "É o instante mais forte da música, numa escala em que 1,000 é exatamente o "
         "limite do digital. Acima de 1,000 a onda não cabe mais e pode distorcer se "
         "alguém a amplificar. Não é medido em dB, e sim nessa escala de 0 a 1 e pouco.",
     ),
     (
-        "Distorção  ·  o aviso amarelo",
+        "Clipping  ·  o aviso amarelo",
         "Aparece quando levantar o volume faria o pico estourar o limite. O app já "
         "reduz o ganho o suficiente para que isso não aconteça — a proteção contra "
         "distorção fica sempre ligada.\n\n"
@@ -107,7 +107,7 @@ HELP_SECTIONS: tuple[tuple[str, str], ...] = (
     (
         "Desfazer",
         "Selecione as linhas na tabela (Ctrl ou Shift para várias) e clique em "
-        "Desfazer selecionados. As etiquetas são apagadas e os arquivos voltam ao "
+        "Ausgewählte Tags entfernen. As etiquetas são apagadas e os arquivos voltam ao "
         "estado anterior. O áudio nunca foi tocado, então não há nada a recuperar "
         "além dos próprios números.",
     ),
@@ -124,7 +124,7 @@ BASE_SIZE = (1080, 720)
 MIN_SIZE = (900, 620)
 
 # Preferencias no %APPDATA% e nao ao lado do .exe: um executavel portatil pode acabar
-# numa pasta somente-leitura (Arquivos de Programas, pendrive), e ai' salvar falharia.
+# numa pasta somente-leitura (Dateis de Programas, pendrive), e ai' salvar falharia.
 CONFIG_DIR = Path(os.environ.get("APPDATA", Path.home())) / "ReplayGainNormalizer"
 CONFIG_FILE = CONFIG_DIR / "config.json"
 
@@ -215,24 +215,24 @@ def explain(result: engine.Result) -> str:
     if result.error:
         # A mensagem crua do rsgain cabe aqui e nao cabia na coluna estreita de ajuste;
         # o prefixo em portugues da' a ela um contexto que o ingles tecnico nao da'.
-        return f"Falhou: {result.error}"
+        return f"Fehlgeschlagen: {result.error}"
     if result.gain is None:
         # Silencio digital: o rsgain devolve -inf, e nao ha' volume a corrigir.
-        return "Silêncio digital — sem volume a medir"
+        return "Digitale Stille – keine Lautstärke messbar"
 
     # Meio decibel e' o limiar abaixo do qual ninguem escuta diferenca; chamar isso de
     # "ajuste" assustaria o usuario a' toa.
     if abs(result.gain) < 0.5:
-        frase = "Já está no volume ideal"
+        frase = "Bereits auf Ziellautstärke"
     elif result.gain > 0:
-        frase = f"Está baixa — será elevada {result.gain:.1f} dB"
+        frase = f"Zu leise – wird um {result.gain:.1f} dB"
     else:
-        frase = f"Está alta — será abaixada {abs(result.gain):.1f} dB"
+        frase = f"Zu laut – wird um {abs(result.gain):.1f} dB"
 
     # Frase curta de proposito: a coluna e' larga, mas nao infinita, e o significado
     # completo desse aviso mora no painel de ajuda.
     if result.clipped:
-        frase += "  ·  pico contido"
+        frase += "  ·  pico begrenzt"
     return frase
 
 
@@ -255,10 +255,10 @@ class HelpWindow(ctk.CTkToplevel):
         self.geometry(f"{int(620 * scale)}x{int(700 * scale)}")
         self.minsize(int(520 * scale), int(460 * scale))
 
-        ctk.CTkLabel(self, text="Entendendo os resultados", text_color=TEXT,
+        ctk.CTkLabel(self, text="Ergebnisse verstehen", text_color=TEXT,
                      anchor="w", font=ctk.CTkFont("Segoe UI", 18, "bold")
                      ).pack(fill="x", padx=26, pady=(22, 2))
-        ctk.CTkLabel(self, text="O que cada coluna da tabela quer dizer",
+        ctk.CTkLabel(self, text="Erklärung der Tabellenspalten",
                      text_color=MUTED, anchor="w",
                      font=ctk.CTkFont("Segoe UI", 12)
                      ).pack(fill="x", padx=26, pady=(0, 14))
@@ -280,7 +280,7 @@ class HelpWindow(ctk.CTkToplevel):
                          font=ctk.CTkFont("Segoe UI", 12)
                          ).pack(fill="x", padx=18, pady=(0, 2))
 
-        ctk.CTkButton(self, text="Entendi", width=130, height=38, corner_radius=8,
+        ctk.CTkButton(self, text="Verstanden", width=130, height=38, corner_radius=8,
                       fg_color=ACCENT, hover_color=ACCENT_HOVER,
                       text_color="#0F1115",
                       font=ctk.CTkFont("Segoe UI", 12, "bold"),
@@ -297,8 +297,7 @@ class HelpWindow(ctk.CTkToplevel):
         self.focus_force()
 
 
-class Dialog(ctk.CTkToplevel):
-    """Caixa de dialogo modal com a mesma linguagem visual do resto do app.
+class Dialog(ctk.CTkToplevel):    """Caixa de dialogo modal com a mesma linguagem visual do resto do app.
 
     O `messagebox` do tkinter usa o tema claro do Windows e destoa por completo de uma
     janela escura. Como sao apenas dois dialogos, desenhar os dois na mao sai mais
@@ -333,13 +332,13 @@ class Dialog(ctk.CTkToplevel):
         if confirm:
             # So' existe botao de cancelar quando ha' algo a confirmar; um aviso
             # informativo tem uma saida unica, e duas opcoes ali seriam ruido.
-            ctk.CTkButton(buttons, text="Cancelar", width=104, height=36,
+            ctk.CTkButton(buttons, text="Abbrechen", width=104, height=36,
                           corner_radius=8, fg_color="transparent", border_width=1,
                           border_color=BORDER, hover_color=SURFACE_2,
                           text_color=MUTED, font=ctk.CTkFont("Segoe UI", 12),
                           command=self._cancel).pack(side="right", padx=(8, 0))
 
-        ctk.CTkButton(buttons, text=confirm or "Entendi", width=124, height=36,
+        ctk.CTkButton(buttons, text=confirm or "Verstanden", width=124, height=36,
                       corner_radius=8,
                       fg_color=DANGER if danger else ACCENT,
                       hover_color=DANGER_HOVER if danger else ACCENT_HOVER,
@@ -490,7 +489,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         corner = ctk.CTkFrame(header, fg_color="transparent")
         corner.grid(row=0, column=3, rowspan=2, sticky="e")
 
-        ctk.CTkLabel(corner, text="TAMANHO DO TEXTO", text_color=MUTED, anchor="e",
+        ctk.CTkLabel(corner, text="TEXTGRÖSSE", text_color=MUTED, anchor="e",
                      font=ctk.CTkFont("Segoe UI", 10, "bold")
                      ).grid(row=0, column=0, sticky="e", pady=(0, 4))
 
@@ -505,7 +504,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         self.scale_selector.set(self.scale_name)
 
         # Botao de ajuda no canto extremo. Redondo e com o "?" sozinho: e' o simbolo
-        # que todo mundo ja' reconhece, e assim ele nao compete com o Normalizar.
+        # que todo mundo ja' reconhece, e assim ele nao compete com o Analysieren und taggen.
         ctk.CTkButton(header, text="?", width=42, height=42, corner_radius=21,
                       fg_color=SURFACE_2, hover_color=ACCENT, text_color=TEXT,
                       border_width=1, border_color=BORDER,
@@ -534,14 +533,14 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         self.path_entry.grid(row=0, column=0, sticky="ew")
         self.path_entry.configure(state="readonly")
 
-        ctk.CTkButton(row, text="Procurar", width=112, height=42, corner_radius=9,
+        ctk.CTkButton(row, text="Durchsuchen", width=112, height=42, corner_radius=9,
                       fg_color=SURFACE_2, hover_color=BORDER, text_color=TEXT,
                       border_width=1, border_color=BORDER,
                       font=ctk.CTkFont("Segoe UI", 12),
                       command=self._pick_folder).grid(row=0, column=1, padx=(10, 0))
 
         self.count_label = ctk.CTkLabel(
-            card, text="Nenhuma pasta selecionada", text_color=MUTED, anchor="w",
+            card, text="Kein Ordner ausgewählt", text_color=MUTED, anchor="w",
             font=ctk.CTkFont("Segoe UI", 11))
         self.count_label.grid(row=1, column=0, sticky="w", padx=20, pady=(0, 16))
 
@@ -554,7 +553,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         left = ctk.CTkFrame(bar, fg_color="transparent")
         left.grid(row=0, column=0, sticky="w")
 
-        ctk.CTkLabel(left, text="VOLUME ALVO", text_color=MUTED,
+        ctk.CTkLabel(left, text="ZIEL-LAUTSTÄRKE", text_color=MUTED,
                      font=ctk.CTkFont("Segoe UI", 10, "bold")
                      ).grid(row=0, column=0, sticky="w", pady=(0, 5))
 
@@ -573,7 +572,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         right.grid(row=0, column=2, sticky="e")
 
         self.undo_button = ctk.CTkButton(
-            right, text="Desfazer selecionados", width=188, height=42, corner_radius=9,
+            right, text="Ausgewählte Tags entfernen", width=188, height=42, corner_radius=9,
             fg_color="transparent", border_width=1, border_color=BORDER,
             hover_color=SURFACE_2, text_color=MUTED,
             font=ctk.CTkFont("Segoe UI", 12),
@@ -581,7 +580,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         self.undo_button.grid(row=0, column=0, padx=(0, 10), pady=(20, 0))
 
         self.normalize_button = ctk.CTkButton(
-            right, text="Normalizar", width=164, height=42, corner_radius=9,
+            right, text="Analysieren und taggen", width=164, height=42, corner_radius=9,
             fg_color=ACCENT, hover_color=ACCENT_HOVER, text_color="#0F1115",
             text_color_disabled=MUTED, border_color=BORDER,
             font=ctk.CTkFont("Segoe UI", 13, "bold"),
@@ -597,12 +596,11 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
 
         self.progress = ctk.CTkProgressBar(
             wrap, height=6, corner_radius=3,
-            fg_color=SURFACE_2, progress_color=ACCENT)
-        self.progress.grid(row=0, column=0, sticky="ew")
+            fg_color=SURFACE_2, progress_color=ACCENT)        self.progress.grid(row=0, column=0, sticky="ew")
         self.progress.set(0)
 
         self.progress_label = ctk.CTkLabel(
-            wrap, text="Parado", text_color=MUTED, width=190, anchor="e",
+            wrap, text="Bereit", text_color=MUTED, width=190, anchor="e",
             font=ctk.CTkFont("Segoe UI", 11))
         self.progress_label.grid(row=0, column=1, padx=(14, 0))
 
@@ -657,12 +655,12 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         # que os numeros dizem, em portugues comum. Os cabecalhos evitam jargao — o
         # termo tecnico (LUFS, dB) fica entre parenteses, explicado no botao "?".
         self.tree_columns = {
-            "file": ("Arquivo", 210, "w"),
-            "loudness": ("Volume (LUFS)", 130, "e"),
-            "gain": ("Ajuste (dB)", 105, "e"),
-            "peak": ("Pico", 75, "e"),
-            "clip": ("Distorção", 88, "center"),
-            "meaning": ("O que isso significa", 370, "w"),
+            "file": ("Datei", 210, "w"),
+            "loudness": ("Lautstärke (LUFS)", 130, "e"),
+            "gain": ("Anpassung (dB)", 105, "e"),
+            "peak": ("Peak", 75, "e"),
+            "clip": ("Clipping", 88, "center"),
+            "meaning": ("Bedeutung", 370, "w"),
         }
         self.tree = ttk.Treeview(card, columns=tuple(self.tree_columns),
                                  show="headings", style="RG.Treeview",
@@ -702,7 +700,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         card.grid(row=5, column=0, sticky="ew", padx=28, pady=(14, 24))
         card.grid_columnconfigure(0, weight=1)
 
-        ctk.CTkLabel(card, text="ATIVIDADE", text_color=MUTED, anchor="w",
+        ctk.CTkLabel(card, text="PROTOKOLL", text_color=MUTED, anchor="w",
                      font=ctk.CTkFont("Segoe UI", 10, "bold")
                      ).grid(row=0, column=0, sticky="w", padx=18, pady=(12, 0))
 
@@ -809,7 +807,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
     def _pick_folder(self) -> None:
         """Abre o dialogo nativo de escolha de pasta, comecando na ultima usada."""
         initial = str(self.folder) if self.folder else self.config_data.get("last_folder", "")
-        chosen = filedialog.askdirectory(title="Selecione uma pasta de músicas",
+        chosen = filedialog.askdirectory(title="Musikordner auswählen",
                                          initialdir=initial or None)
         if chosen:
             self._set_folder(Path(chosen))
@@ -857,7 +855,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
                 text_color=SUCCESS)
         else:
             self.count_label.configure(
-                text="Nenhum arquivo .mp3 ou .flac nesta pasta", text_color=WARN)
+                text="Keine .mp3- oder .flac-Dateien in diesem Ordner", text_color=WARN)
 
         self._set_busy(False)
         if log:
@@ -888,17 +886,16 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
             return
 
         dialog = Dialog(
-            self, "Remover as etiquetas ReplayGain?",
+            self, "ReplayGain-Tags entfernen?",
             f"As etiquetas ReplayGain de {len(paths)} arquivo(s) selecionado(s) "
             "ser\u00e3o apagadas.\n\n"
             "O \u00e1udio n\u00e3o \u00e9 afetado, mas os valores medidos se perdem \u2014 "
             "seria preciso normalizar de novo.",
-            confirm="Remover etiquetas", danger=True)
+            confirm="Tags entfernen", danger=True)
         if not dialog.result:
             return
 
-        # Guardar quais linhas foram afetadas permite marca-las como limpas depois,
-        # em vez de reconstruir a tabela inteira e perder o que ja' estava nela.
+        # Guardar quais linhas foram afetadas permite marca-las como limpas depois,        # em vez de reconstruir a tabela inteira e perder o que ja' estava nela.
         self._undo_rows = {self.row_paths[i]: i for i in selection if i in self.row_paths}
         self._log(f"\u2014 Removendo etiquetas de {len(paths)} arquivo(s) \u2014")
         self._start(paths, mode="undo")
@@ -914,7 +911,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
         except FileNotFoundError as exc:
             # Descobrir a ausencia do motor ANTES de travar os botoes evita deixar a
             # interface presa num estado "ocupado" que nunca vai terminar.
-            Dialog(self, "Motor de áudio ausente", str(exc))
+            Dialog(self, "Audio-Engine nicht gefunden", str(exc))
             return
 
         self.running = True
@@ -945,7 +942,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
                     _, done, total = message
                     self.progress.set(done / total if total else 0)
                     self.progress_label.configure(
-                        text=f"Arquivo {done} de {total}", text_color=TEXT)
+                        text=f"Datei {done} de {total}", text_color=TEXT)
                 elif kind == "log":
                     self._log(message[1])
                 elif kind == "result":
@@ -988,9 +985,9 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
                                    tags=("error",))
                 else:
                     self.tree.item(item, values=(result.path.name, "\u2014",
-                                                 "etiquetas removidas", "\u2014",
+                                                 "Tags entfernt", "\u2014",
                                                  "\u2014",
-                                                 "Voltou ao estado original"),
+                                                 "Ursprünglicher Zustand wiederhergestellt"),
                                    tags=("cleared",))
                 return
 
@@ -1009,7 +1006,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
             gain = "\u2014" if result.gain is None else f"{result.gain:+.2f}"
             peak = "\u2014" if result.peak is None else f"{result.peak:.4f}"
             values = (result.path.name, loudness, gain, peak,
-                      "contido" if result.clipped else "\u2014",
+                      "begrenzt" if result.clipped else "\u2014",
                       explain(result))
             # Ganho positivo = musica baixa que foi levantada; verde marca isso.
             # O aviso de clipping tem prioridade por ser o caso que merece atencao.
@@ -1065,7 +1062,7 @@ class App(ctk.CTk, TkinterDnD.DnDWrapper):
             self.undo_button.configure(state="disabled")
             self.target_menu.configure(state="disabled")
         else:
-            self.normalize_button.configure(text="Normalizar")
+            self.normalize_button.configure(text="Analysieren und taggen")
             self._set_normalize_enabled(bool(self.songs))
             self.target_menu.configure(state="normal")
             self._on_select()
