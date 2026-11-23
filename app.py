@@ -190,7 +190,7 @@ def explain(result: engine.Result) -> str:
     # Frase curta de proposito: a coluna e' larga, mas nao infinita, e o significado
     # completo desse aviso mora no painel de ajuda.
     if result.clipped:
-        frase += "  ·  pico begrenzt"
+        frase += "  ·  Peak begrenzt"
     return frase
 
 
@@ -203,7 +203,7 @@ class HelpWindow(ctk.CTkToplevel):
 
     def __init__(self, master) -> None:
         super().__init__(master)
-        self.title("Ajuda — entendendo os resultados")
+        self.title("Hilfe – Ergebnisse verstehen")
         self.configure(fg_color=BG)
         self.transient(master)
         # `geometry` fala em pixels reais da tela, mas os widgets ja' vem ampliados
@@ -255,7 +255,8 @@ class HelpWindow(ctk.CTkToplevel):
         self.focus_force()
 
 
-class Dialog(ctk.CTkToplevel):    """Caixa de dialogo modal com a mesma linguagem visual do resto do app.
+class Dialog(ctk.CTkToplevel):
+    """Dialogfenster im gleichen Design wie die übrige Anwendung.
     O `messagebox` do tkinter usa o tema claro do Windows e destoa por completo de uma
     janela escura. Como sao apenas dois dialogos, desenhar os dois na mao sai mais
     barato do que conviver com o contraste feio.
